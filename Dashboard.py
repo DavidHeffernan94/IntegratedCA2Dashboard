@@ -43,7 +43,7 @@ if selected_gender:
     filtered_df = filtered_df[filtered_df["Gender"].isin(selected_gender)]
     
 
-st.title("📊 Online Retail Store Dashboard")
+st.title("Online Retail Store Dashboard")
 st.markdown("---")
 
 
