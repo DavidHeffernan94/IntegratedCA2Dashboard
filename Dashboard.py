@@ -41,3 +41,42 @@ if selected_location:
     filtered_df = filtered_df[filtered_df["Location"].isin(selected_location)]
 if selected_gender:
     filtered_df = filtered_df[filtered_df["Gender"].isin(selected_gender)]
+    
+
+st.title("📊 Online Retail Store Dashboard")
+st.markdown("---")
+
+
+st.subheader("Overview")
+col1, col2, col3, col4 = st.columns(4)
+
+col1.metric(
+    label="Total Revenue",
+    value=f"${filtered_df['TotalPrice'].sum():,.2f}"
+)
+col2.metric(
+    label="Total Customers",
+    value=f"{filtered_df['CustomerID'].nunique():,}"
+)
+col3.metric(
+    label="Total Transactions",
+    value=f"{filtered_df['TransactionID'].nunique():,}"
+)
+col4.metric(
+    label="Avg Order Value",
+    value=f"${filtered_df.groupby('TransactionID')['TotalPrice'].sum().mean():,.2f}"
+)
+
+st.markdown("---")
+
+
+st.subheader("Monthly Revenue")
+monthly_revenue = filtered_df.groupby(filtered_df["Date"].dt.month)["TotalPrice"].sum().reset_index()
+monthly_revenue.columns = ["Month", "Revenue"]
+monthly_revenue["Month"] = pd.to_datetime(monthly_revenue["Month"], format="%m").dt.strftime("%B")
+
+fig = px.line(monthly_revenue, x="Month", y="Revenue",
+              title="Monthly Revenue (2019)",
+              markers=True)
+fig.update_layout(font=dict(size=16))
+st.plotly_chart(fig, use_container_width=True)
