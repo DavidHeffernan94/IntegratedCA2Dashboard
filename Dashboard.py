@@ -80,3 +80,31 @@ fig = px.line(monthly_revenue, x="Month", y="Revenue",
               markers=True)
 fig.update_layout(font=dict(size=16))
 st.plotly_chart(fig, use_container_width=True)
+
+st.markdown("---")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("🏆 Top 10 Products by Revenue")
+    top_products = filtered_df.groupby("Description")["TotalPrice"].sum().reset_index()
+    top_products = top_products.sort_values("TotalPrice", ascending=True).tail(10)
+    
+    fig2 = px.bar(top_products, x="TotalPrice", y="Description",
+                  orientation="h",
+                  title="Top 10 Products by Revenue",
+                  labels={"TotalPrice": "Revenue ($)", "Description": ""})
+    fig2.update_layout(font=dict(size=14))
+    st.plotly_chart(fig2, use_container_width=True)
+
+with col2:
+    st.subheader("📦 Revenue by Category")
+    category_revenue = filtered_df.groupby("Category")["TotalPrice"].sum().reset_index()
+    category_revenue = category_revenue.sort_values("TotalPrice", ascending=True)
+    
+    fig3 = px.bar(category_revenue, x="TotalPrice", y="Category",
+                  orientation="h",
+                  title="Revenue by Category",
+                  labels={"TotalPrice": "Revenue ($)", "Category": ""})
+    fig3.update_layout(font=dict(size=14))
+    st.plotly_chart(fig3, use_container_width=True)
