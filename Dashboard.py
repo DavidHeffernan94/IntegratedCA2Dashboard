@@ -13,4 +13,4 @@ df = load_data()
 
 if st.checkbox("show raw data"):
     st.subheader("Raw Data")
-    st.write(data)
+    st.write(df)
