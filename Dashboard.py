@@ -163,3 +163,76 @@ with col4:
                   hole=0.4)
     fig7.update_layout(font=dict(size=14))
     st.plotly_chart(fig7, use_container_width=True)
+    
+st.markdown("---")
+st.subheader("Basket Analysis")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("#### Top Item Pairs by Support")
+    pair_data = {
+        "Item Pair": [
+            "Nest Outdoor Camera, Nest Indoor Camera",
+            "Nest Thermostat (Steel), Nest Outdoor Camera",
+            "Nest Thermostat (Steel), Nest Indoor Camera",
+            "Nest Battery Alarm, Nest Thermostat (Steel)",
+            "Nest Battery Alarm, Nest Outdoor Camera",
+            "Nest Wired Alarm, Nest Thermostat (Steel)",
+            "Nest Battery Alarm, Nest Indoor Camera",
+            "Google Stickers, YouTube Decals",
+            "Nest Wired Alarm, Nest Outdoor Camera",
+            "Google Stickers, Google Doodle Decal"
+        ],
+        "Support (%)": [2.77, 1.20, 0.91, 0.90, 0.77, 0.72, 0.60, 0.54, 0.50, 0.49]
+    }
+    pair_df = pd.DataFrame(pair_data)
+    
+    fig8 = px.bar(pair_df, x="Support (%)", y="Item Pair",
+                  orientation="h",
+                  title="Top 10 Item Pairs by Support",
+                  labels={"Support (%)": "Support (%)", "Item Pair": ""})
+    fig8.update_layout(font=dict(size=13))
+    fig8.update_yaxes(autorange="reversed")
+    st.plotly_chart(fig8, use_container_width=True)
+
+with col2:
+    st.markdown("#### Top Association Rules by Lift")
+    rules_data = {
+        "Rule": [
+            "Google Tee Blue → Google Tee Green",
+            "Google Tee Green → Google Tee Blue",
+            "Scoop Neck Tee White → Scoop Neck Tee Black",
+            "Scoop Neck Tee Black → Scoop Neck Tee White",
+            "Android Sticker Ultra → 8pc Android Sticker",
+            "8pc Android Sticker → Android Sticker Ultra",
+            "Vintage Badge Tee White → Vintage Badge Tee Sage",
+            "22oz Android Bottle → Google 22oz Water Bottle",
+            "8pc Android Sticker → Google Doodle Decal",
+            "Android Sticker Ultra → Google Stickers"
+        ],
+        "Lift": [59.81, 59.81, 43.77, 43.77, 30.57, 30.57, 17.65, 17.09, 16.05, 14.61]
+    }
+    rules_df = pd.DataFrame(rules_data)
+    
+    fig9 = px.bar(rules_df, x="Lift", y="Rule",
+                  orientation="h",
+                  title="Top 10 Association Rules by Lift",
+                  labels={"Lift": "Lift Score", "Rule": ""})
+    fig9.update_layout(font=dict(size=13))
+    fig9.update_yaxes(autorange="reversed")
+    st.plotly_chart(fig9, use_container_width=True)
+
+st.markdown("---")
+
+st.subheader("🧺 Basket Size Distribution")
+basket_sizes = filtered_df.groupby("TransactionID")["Description"].count().reset_index()
+basket_sizes.columns = ["TransactionID", "Basket Size"]
+basket_sizes = basket_sizes[basket_sizes["Basket Size"] <= 10]
+
+fig10 = px.histogram(basket_sizes, x="Basket Size",
+                     title="Distribution of Basket Sizes",
+                     labels={"Basket Size": "Number of Items", "count": "Number of Transactions"},
+                     nbins=10)
+fig10.update_layout(font=dict(size=14))
+st.plotly_chart(fig10, use_container_width=True)
