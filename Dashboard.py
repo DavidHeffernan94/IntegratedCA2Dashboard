@@ -225,7 +225,7 @@ with col2:
 
 st.markdown("---")
 
-st.subheader("🧺 Basket Size Distribution")
+st.subheader("Basket Size Distribution")
 basket_sizes = filtered_df.groupby("TransactionID")["Description"].count().reset_index()
 basket_sizes.columns = ["TransactionID", "Basket Size"]
 basket_sizes = basket_sizes[basket_sizes["Basket Size"] <= 10]
@@ -236,3 +236,64 @@ fig10 = px.histogram(basket_sizes, x="Basket Size",
                      nbins=10)
 fig10.update_layout(font=dict(size=14))
 st.plotly_chart(fig10, use_container_width=True)
+
+st.markdown("---")
+st.subheader("ML Insights")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("#### Why This Dataset Suits Machine Learning")
+    
+    ml_stats = {
+        "Metric": [
+            "Total Transactions",
+            "Unique Customers",
+            "Unique Products",
+            "Avg Basket Size",
+            "Matrix Sparsity",
+            "Date Range"
+        ],
+        "Value": [
+            f"{filtered_df['TransactionID'].nunique():,}",
+            f"{filtered_df['CustomerID'].nunique():,}",
+            f"{filtered_df['Description'].nunique():,}",
+            f"{filtered_df.groupby('TransactionID')['Description'].count().mean():.2f}",
+            "97.76%",
+            "Jan 2019 — Dec 2019"
+        ]
+    }
+    ml_df = pd.DataFrame(ml_stats)
+    st.table(ml_df)
+    
+    st.markdown("""
+    **Key ML Suitability Factors:**
+    - ✅ Sufficient customer and product volume for collaborative filtering
+    - ✅ Rich product descriptions enable content-based filtering
+    - ✅ Transaction history supports market basket analysis
+    - ✅ Customer demographics enable segmentation
+    - ⚠️ High sparsity requires low support thresholds
+    """)
+
+with col2:
+    st.markdown("#### Recommendation System Summary")
+    
+    rec_data = {
+        "Method": ["Content-Based", "User-User", "Item-Item"],
+        "Based On": ["Product attributes", "Customer behaviour", "Customer behaviour"],
+        "Cold Start": ["Handles new users", "Struggles", "Struggles"],
+        "Best For": ["New customers", "Established customers", "Cross-category discovery"]
+    }
+    rec_df = pd.DataFrame(rec_data)
+    st.table(rec_df)
+
+    st.markdown("#### Algorithm Comparison")
+    algo_data = {
+        "Metric": ["Rules Generated", "Frequent Itemsets", "Runtime"],
+        "Apriori": ["106", "Identical", "5.05s"],
+        "FP Growth": ["106", "Identical", "6.88s"]
+    }
+    algo_df = pd.DataFrame(algo_data)
+    st.table(algo_df)
+
+st.markdown("---")
