@@ -46,40 +46,63 @@ if selected_gender:
 st.title("Online Retail Store Dashboard")
 st.markdown("---")
 
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📊 Overview",
+    "📅 Sales Analysis", 
+    "👥 Customer Analysis",
+    "🛒 Basket Analysis",
+    "🤖 ML Insights"
+])
 
-st.subheader("Overview")
-col1, col2, col3, col4 = st.columns(4)
+with tab1:
+    # KPI cards and monthly revenue
+    st.subheader("Overview")
+    col1, col2, col3, col4 = st.columns(4)
 
-col1.metric(
+    col1.metric(
     label="Total Revenue",
     value=f"${filtered_df['TotalPrice'].sum():,.2f}"
-)
-col2.metric(
-    label="Total Customers",
-    value=f"{filtered_df['CustomerID'].nunique():,}"
-)
-col3.metric(
-    label="Total Transactions",
-    value=f"{filtered_df['TransactionID'].nunique():,}"
-)
-col4.metric(
-    label="Avg Order Value",
-    value=f"${filtered_df.groupby('TransactionID')['TotalPrice'].sum().mean():,.2f}"
-)
+    )
+    col2.metric(
+        label="Total Customers",
+        value=f"{filtered_df['CustomerID'].nunique():,}"
+    )
+    col3.metric(
+        label="Total Transactions",
+        value=f"{filtered_df['TransactionID'].nunique():,}"
+    )
+    col4.metric(
+        label="Avg Order Value",
+        value=f"${filtered_df.groupby('TransactionID')['TotalPrice'].sum().mean():,.2f}"
+    )
 
-st.markdown("---")
+    st.markdown("---")
 
 
-st.subheader("Monthly Revenue")
-monthly_revenue = filtered_df.groupby(filtered_df["Date"].dt.month)["TotalPrice"].sum().reset_index()
-monthly_revenue.columns = ["Month", "Revenue"]
-monthly_revenue["Month"] = pd.to_datetime(monthly_revenue["Month"], format="%m").dt.strftime("%B")
+    st.subheader("Monthly Revenue")
+    monthly_revenue = filtered_df.groupby(filtered_df["Date"].dt.month)["TotalPrice"].sum().reset_index()
+    monthly_revenue.columns = ["Month", "Revenue"]
+    monthly_revenue["Month"] = pd.to_datetime(monthly_revenue["Month"], format="%m").dt.strftime("%B")
 
-fig = px.line(monthly_revenue, x="Month", y="Revenue",
-              title="Monthly Revenue (2019)",
-              markers=True)
-fig.update_layout(font=dict(size=16))
-st.plotly_chart(fig, use_container_width=True)
+    fig = px.line(monthly_revenue, x="Month", y="Revenue",
+                  title="Monthly Revenue (2019)",
+                  markers=True)
+    fig.update_layout(font=dict(size=16))
+    st.plotly_chart(fig, use_container_width=True)
+    
+with tab2:
+    # Day of week chart, top products, category revenue
+
+with tab3:
+    # Gender spend, location, tenure, coupon usage
+
+with tab4:
+    # Item pairs, association rules, basket size
+
+with tab5:
+    # ML insights table and summary
+
+
 
 st.markdown("---")
 
@@ -268,11 +291,10 @@ with col1:
     
     st.markdown("""
     **Key ML Suitability Factors:**
-    - ✅ Sufficient customer and product volume for collaborative filtering
-    - ✅ Rich product descriptions enable content-based filtering
-    - ✅ Transaction history supports market basket analysis
-    - ✅ Customer demographics enable segmentation
-    - ⚠️ High sparsity requires low support thresholds
+    - Sufficient customer and product volume for collaborative filtering
+    - Rich product descriptions enable content-based filtering
+    - Transaction history supports market basket analysis
+    - Customer demographics enable segmentation
     """)
 
 with col2:
