@@ -205,7 +205,8 @@ with tab3:
                       labels={"Customers": "Number of Customers", "Tenure": ""},
                       color_discrete_sequence=[GOOGLE_BLUE])
         fig6.update_layout(font=dict(size=14), plot_bgcolor="white",
-                           yaxis=dict(gridcolor="#f0f0f0"), xaxis_tickangle=0)
+                           yaxis=dict(gridcolor="#f0f0f0"), #xaxis_tickangle=0
+                           )
         st.plotly_chart(fig6, use_container_width=True)
 
     with col4:
