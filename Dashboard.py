@@ -9,6 +9,47 @@ st.set_page_config(
     layout="wide"
 )
 
+GOOGLE_BLUE = "#4285F4"
+GOOGLE_RED = "#EA4335"
+GOOGLE_YELLOW = "#FBBC05"
+GOOGLE_GREEN = "#34A853"
+GOOGLE_COLORS = [GOOGLE_BLUE, GOOGLE_RED, GOOGLE_YELLOW, GOOGLE_GREEN]
+
+st.markdown("""
+    <style>
+        /* Global font size for 65+ readability */
+        html, body, [class*="css"] {
+            font-size: 18px;
+        }
+        /* Metric labels */
+        [data-testid="stMetricLabel"] {
+            font-size: 16px !important;
+            font-weight: 600;
+            color: #444444;
+        }
+        /* Metric values */
+        [data-testid="stMetricValue"] {
+            font-size: 28px !important;
+            font-weight: 700;
+            color: #4285F4;
+        }
+        /* Tab font size */
+        .stTabs [data-baseweb="tab"] {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 10px 20px;
+        }
+        /* Sidebar */
+        .css-1d391kg {
+            font-size: 16px;
+        }
+        /* Subheaders */
+        h2, h3 {
+            color: #4285F4;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 @st.cache_data  
 def load_data():
     data = pd.read_csv("OnlineRetail_Cleaned.csv")  
@@ -40,7 +81,7 @@ if selected_location:
 if selected_gender:
     filtered_df = filtered_df[filtered_df["Gender"].isin(selected_gender)]
 
-st.title("Online Retail Store Dashboard")
+st.title("🛍️ Google Merchandise Store Dashboard")
 st.markdown("---")
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
@@ -55,22 +96,10 @@ with tab1:
     st.subheader("Overview")
     col1, col2, col3, col4 = st.columns(4)
 
-    col1.metric(
-        label="Total Revenue",
-        value=f"${filtered_df['TotalPrice'].sum():,.2f}"
-    )
-    col2.metric(
-        label="Total Customers",
-        value=f"{filtered_df['CustomerID'].nunique():,}"
-    )
-    col3.metric(
-        label="Total Transactions",
-        value=f"{filtered_df['TransactionID'].nunique():,}"
-    )
-    col4.metric(
-        label="Avg Order Value",
-        value=f"${filtered_df.groupby('TransactionID')['TotalPrice'].sum().mean():,.2f}"
-    )
+    col1.metric(label="Total Revenue", value=f"${filtered_df['TotalPrice'].sum():,.2f}")
+    col2.metric(label="Total Customers", value=f"{filtered_df['CustomerID'].nunique():,}")
+    col3.metric(label="Total Transactions", value=f"{filtered_df['TransactionID'].nunique():,}")
+    col4.metric(label="Avg Order Value", value=f"${filtered_df.groupby('TransactionID')['TotalPrice'].sum().mean():,.2f}")
 
     st.markdown("---")
 
@@ -81,40 +110,45 @@ with tab1:
 
     fig = px.line(monthly_revenue, x="Month", y="Revenue",
                   title="Monthly Revenue (2019)",
-                  markers=True)
-    fig.update_layout(font=dict(size=16))
+                  markers=True,
+                  color_discrete_sequence=[GOOGLE_BLUE])
+    fig.update_layout(font=dict(size=16), plot_bgcolor="white",
+                      yaxis=dict(gridcolor="#f0f0f0"),
+                      xaxis=dict(gridcolor="#f0f0f0"))
+    fig.update_traces(line=dict(width=3), marker=dict(size=10))
     st.plotly_chart(fig, use_container_width=True)
 
 with tab2:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Top 10 Products by Revenue")
         top_products = filtered_df.groupby("Description")["TotalPrice"].sum().reset_index()
         top_products = top_products.sort_values("TotalPrice", ascending=True).tail(10)
 
         fig2 = px.bar(top_products, x="TotalPrice", y="Description",
                       orientation="h",
                       title="Top 10 Products by Revenue",
-                      labels={"TotalPrice": "Revenue ($)", "Description": ""})
-        fig2.update_layout(font=dict(size=14))
+                      labels={"TotalPrice": "Revenue ($)", "Description": ""},
+                      color_discrete_sequence=[GOOGLE_BLUE])
+        fig2.update_layout(font=dict(size=14), plot_bgcolor="white",
+                           xaxis=dict(gridcolor="#f0f0f0"))
         st.plotly_chart(fig2, use_container_width=True)
 
     with col2:
-        st.subheader("Revenue by Category")
         category_revenue = filtered_df.groupby("Category")["TotalPrice"].sum().reset_index()
         category_revenue = category_revenue.sort_values("TotalPrice", ascending=True)
 
         fig3 = px.bar(category_revenue, x="TotalPrice", y="Category",
                       orientation="h",
                       title="Revenue by Category",
-                      labels={"TotalPrice": "Revenue ($)", "Category": ""})
-        fig3.update_layout(font=dict(size=14))
+                      labels={"TotalPrice": "Revenue ($)", "Category": ""},
+                      color_discrete_sequence=[GOOGLE_GREEN])
+        fig3.update_layout(font=dict(size=14), plot_bgcolor="white",
+                           xaxis=dict(gridcolor="#f0f0f0"))
         st.plotly_chart(fig3, use_container_width=True)
 
     st.markdown("---")
 
-    st.subheader("Revenue by Day of Week")
     dow_revenue = filtered_df.groupby(filtered_df["Date"].dt.day_name())["TotalPrice"].sum().reset_index()
     dow_revenue.columns = ["Day", "Revenue"]
     day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -123,8 +157,10 @@ with tab2:
 
     fig_dow = px.bar(dow_revenue, x="Day", y="Revenue",
                      title="Revenue by Day of Week",
-                     labels={"Revenue": "Revenue ($)", "Day": ""})
-    fig_dow.update_layout(font=dict(size=14))
+                     labels={"Revenue": "Revenue ($)", "Day": ""},
+                     color_discrete_sequence=[GOOGLE_YELLOW])
+    fig_dow.update_layout(font=dict(size=14), plot_bgcolor="white",
+                          yaxis=dict(gridcolor="#f0f0f0"))
     st.plotly_chart(fig_dow, use_container_width=True)
 
 with tab3:
@@ -137,8 +173,10 @@ with tab3:
         fig4 = px.bar(spend_gender, x="Gender", y="Avg Spend", color="Channel",
                       barmode="group",
                       title="Average Online vs Offline Spend by Gender",
-                      labels={"Avg Spend": "Average Spend ($)"})
-        fig4.update_layout(font=dict(size=14))
+                      labels={"Avg Spend": "Average Spend ($)"},
+                      color_discrete_sequence=[GOOGLE_BLUE, GOOGLE_RED])
+        fig4.update_layout(font=dict(size=14), plot_bgcolor="white",
+                           yaxis=dict(gridcolor="#f0f0f0"))
         st.plotly_chart(fig4, use_container_width=True)
 
     with col2:
@@ -148,8 +186,10 @@ with tab3:
         fig5 = px.bar(spend_location, x="TotalPrice", y="Location",
                       orientation="h",
                       title="Total Revenue by Location",
-                      labels={"TotalPrice": "Revenue ($)", "Location": ""})
-        fig5.update_layout(font=dict(size=14))
+                      labels={"TotalPrice": "Revenue ($)", "Location": ""},
+                      color_discrete_sequence=[GOOGLE_GREEN])
+        fig5.update_layout(font=dict(size=14), plot_bgcolor="white",
+                           xaxis=dict(gridcolor="#f0f0f0"))
         st.plotly_chart(fig5, use_container_width=True)
 
     st.markdown("---")
@@ -162,8 +202,10 @@ with tab3:
 
         fig6 = px.bar(tenure_counts, x="Tenure", y="Customers",
                       title="Number of Customers by Tenure Segment",
-                      labels={"Customers": "Number of Customers", "Tenure": ""})
-        fig6.update_layout(font=dict(size=14))
+                      labels={"Customers": "Number of Customers", "Tenure": ""},
+                      color_discrete_sequence=[GOOGLE_BLUE])
+        fig6.update_layout(font=dict(size=14), plot_bgcolor="white",
+                           yaxis=dict(gridcolor="#f0f0f0"))
         st.plotly_chart(fig6, use_container_width=True)
 
     with col4:
@@ -172,8 +214,10 @@ with tab3:
 
         fig7 = px.pie(coupon_counts, values="Count", names="CouponStatus",
                       title="Coupon Usage Breakdown",
-                      hole=0.4)
+                      hole=0.4,
+                      color_discrete_sequence=GOOGLE_COLORS)
         fig7.update_layout(font=dict(size=14))
+        fig7.update_traces(textfont_size=14)
         st.plotly_chart(fig7, use_container_width=True)
 
 with tab4:
@@ -201,8 +245,10 @@ with tab4:
         fig8 = px.bar(pair_df, x="Support (%)", y="Item Pair",
                       orientation="h",
                       title="Top 10 Item Pairs by Support",
-                      labels={"Support (%)": "Support (%)", "Item Pair": ""})
-        fig8.update_layout(font=dict(size=13))
+                      labels={"Support (%)": "Support (%)", "Item Pair": ""},
+                      color_discrete_sequence=[GOOGLE_BLUE])
+        fig8.update_layout(font=dict(size=13), plot_bgcolor="white",
+                           xaxis=dict(gridcolor="#f0f0f0"))
         fig8.update_yaxes(autorange="reversed")
         st.plotly_chart(fig8, use_container_width=True)
 
@@ -228,8 +274,10 @@ with tab4:
         fig9 = px.bar(rules_df, x="Lift", y="Rule",
                       orientation="h",
                       title="Top 10 Association Rules by Lift",
-                      labels={"Lift": "Lift Score", "Rule": ""})
-        fig9.update_layout(font=dict(size=13))
+                      labels={"Lift": "Lift Score", "Rule": ""},
+                      color_discrete_sequence=[GOOGLE_RED])
+        fig9.update_layout(font=dict(size=13), plot_bgcolor="white",
+                           xaxis=dict(gridcolor="#f0f0f0"))
         fig9.update_yaxes(autorange="reversed")
         st.plotly_chart(fig9, use_container_width=True)
 
@@ -243,8 +291,10 @@ with tab4:
     fig10 = px.histogram(basket_sizes, x="Basket Size",
                          title="Distribution of Basket Sizes",
                          labels={"Basket Size": "Number of Items", "count": "Number of Transactions"},
-                         nbins=10)
-    fig10.update_layout(font=dict(size=14))
+                         nbins=10,
+                         color_discrete_sequence=[GOOGLE_GREEN])
+    fig10.update_layout(font=dict(size=14), plot_bgcolor="white",
+                        yaxis=dict(gridcolor="#f0f0f0"))
     st.plotly_chart(fig10, use_container_width=True)
 
 with tab5:
