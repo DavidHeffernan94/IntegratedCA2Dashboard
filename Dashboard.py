@@ -81,15 +81,15 @@ if selected_location:
 if selected_gender:
     filtered_df = filtered_df[filtered_df["Gender"].isin(selected_gender)]
 
-st.title("🛍️ Google Merchandise Store Dashboard")
+st.title("Google Merchandise Store Dashboard")
 st.markdown("---")
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Overview",
-    "📅 Sales Analysis",
-    "👥 Customer Analysis",
-    "🛒 Basket Analysis",
-    "🤖 ML Insights"
+    "Overview",
+    "Sales Analysis",
+    "Customer Analysis",
+    "Basket Analysis",
+    "ML Insights"
 ])
 
 with tab1:
