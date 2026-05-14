@@ -47,6 +47,9 @@ st.markdown("""
         h2, h3 {
             color: #4285F4;
         }
+        .stApp {
+            background-color: #F8F9FA;
+        }
     </style>
 """, unsafe_allow_html=True)
 
