@@ -4,7 +4,7 @@ import numpy as np
 import plotly.express as px
 
 st.set_page_config(
-    page_title="Online Retail Store",
+    page_title="Google Merchandise Store",
     page_icon="📊️",
     layout="wide"
 )
@@ -14,42 +14,37 @@ GOOGLE_RED = "#EA4335"
 GOOGLE_YELLOW = "#FBBC05"
 GOOGLE_GREEN = "#34A853"
 GOOGLE_COLORS = [GOOGLE_BLUE, GOOGLE_RED, GOOGLE_YELLOW, GOOGLE_GREEN]
+PLOT_BG = "#F8F9FA"
 
 st.markdown("""
     <style>
-        /* Global font size for 65+ readability */
         html, body, [class*="css"] {
             font-size: 18px;
         }
-        /* Metric labels */
         [data-testid="stMetricLabel"] {
             font-size: 16px !important;
             font-weight: 600;
             color: #444444;
         }
-        /* Metric values */
         [data-testid="stMetricValue"] {
             font-size: 28px !important;
             font-weight: 700;
             color: #4285F4;
         }
-        /* Tab font size */
         .stTabs [data-baseweb="tab"] {
             font-size: 16px;
             font-weight: 600;
             padding: 10px 20px;
         }
-        /* Sidebar */
         .css-1d391kg {
             font-size: 16px;
         }
-        /* Subheaders */
         h2, h3 {
             color: #4285F4;
         }
-        #.stApp {
-        #    background-color: #F8F9FA;
-        #}
+        .stApp {
+            background-color: #F8F9FA;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -97,8 +92,9 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 
 with tab1:
     st.subheader("Overview")
-    col1, col2, col3, col4 = st.columns(4)
+    st.caption("A high-level summary of store performance. Use the filters on the left to explore specific time periods, categories, locations or customer groups.")
 
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric(label="Total Revenue", value=f"${filtered_df['TotalPrice'].sum():,.2f}")
     col2.metric(label="Total Customers", value=f"{filtered_df['CustomerID'].nunique():,}")
     col3.metric(label="Total Transactions", value=f"{filtered_df['TransactionID'].nunique():,}")
@@ -106,22 +102,41 @@ with tab1:
 
     st.markdown("---")
 
-    st.subheader("Monthly Revenue")
-    monthly_revenue = filtered_df.groupby(filtered_df["Date"].dt.month)["TotalPrice"].sum().reset_index()
-    monthly_revenue.columns = ["Month", "Revenue"]
-    monthly_revenue["Month"] = pd.to_datetime(monthly_revenue["Month"], format="%m").dt.strftime("%B")
+    col_rev, col_gender = st.columns(2)
 
-    fig = px.line(monthly_revenue, x="Month", y="Revenue",
-                  title="Monthly Revenue (2019)",
-                  markers=True,
-                  color_discrete_sequence=[GOOGLE_BLUE])
-    fig.update_layout(font=dict(size=16), plot_bgcolor="white",
-                      yaxis=dict(gridcolor="#f0f0f0"),
-                      xaxis=dict(gridcolor="#f0f0f0"))
-    fig.update_traces(line=dict(width=3), marker=dict(size=10))
-    st.plotly_chart(fig, use_container_width=True)
+    with col_rev:
+        st.subheader("Monthly Revenue")
+        monthly_revenue = filtered_df.groupby(filtered_df["Date"].dt.month)["TotalPrice"].sum().reset_index()
+        monthly_revenue.columns = ["Month", "Revenue"]
+        monthly_revenue["Month"] = pd.to_datetime(monthly_revenue["Month"], format="%m").dt.strftime("%B")
+
+        fig = px.line(monthly_revenue, x="Month", y="Revenue",
+                      title="Monthly Revenue (2019)",
+                      markers=True,
+                      color_discrete_sequence=[GOOGLE_BLUE])
+        fig.update_layout(font=dict(size=16), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                          yaxis=dict(gridcolor="#E0E0E0"),
+                          xaxis=dict(gridcolor="#E0E0E0"))
+        fig.update_traces(line=dict(width=3), marker=dict(size=10))
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col_gender:
+        st.subheader("Revenue by Gender")
+        gender_revenue = filtered_df.groupby("Gender")["TotalPrice"].sum().reset_index()
+        gender_revenue.columns = ["Gender", "Revenue"]
+
+        fig_gender = px.bar(gender_revenue, x="Gender", y="Revenue",
+                            title="Total Revenue by Gender",
+                            labels={"Revenue": "Revenue ($)", "Gender": ""},
+                            color_discrete_sequence=[GOOGLE_BLUE, GOOGLE_RED])
+        fig_gender.update_layout(font=dict(size=14), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                                  yaxis=dict(gridcolor="#E0E0E0"))
+        st.plotly_chart(fig_gender, use_container_width=True)
 
 with tab2:
+    st.subheader("Sales Analysis")
+    st.caption("Explore product and category performance, and identify which days of the week generate the most revenue.")
+
     col1, col2 = st.columns(2)
 
     with col1:
@@ -133,8 +148,8 @@ with tab2:
                       title="Top 10 Products by Revenue",
                       labels={"TotalPrice": "Revenue ($)", "Description": ""},
                       color_discrete_sequence=[GOOGLE_BLUE])
-        fig2.update_layout(font=dict(size=14), plot_bgcolor="white",
-                           xaxis=dict(gridcolor="#f0f0f0"))
+        fig2.update_layout(font=dict(size=14), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                           xaxis=dict(gridcolor="#E0E0E0"))
         st.plotly_chart(fig2, use_container_width=True)
 
     with col2:
@@ -146,8 +161,8 @@ with tab2:
                       title="Revenue by Category",
                       labels={"TotalPrice": "Revenue ($)", "Category": ""},
                       color_discrete_sequence=[GOOGLE_GREEN])
-        fig3.update_layout(font=dict(size=14), plot_bgcolor="white",
-                           xaxis=dict(gridcolor="#f0f0f0"))
+        fig3.update_layout(font=dict(size=14), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                           xaxis=dict(gridcolor="#E0E0E0"))
         st.plotly_chart(fig3, use_container_width=True)
 
     st.markdown("---")
@@ -162,11 +177,22 @@ with tab2:
                      title="Revenue by Day of Week",
                      labels={"Revenue": "Revenue ($)", "Day": ""},
                      color_discrete_sequence=[GOOGLE_YELLOW])
-    fig_dow.update_layout(font=dict(size=14), plot_bgcolor="white",
-                          yaxis=dict(gridcolor="#f0f0f0"))
+    fig_dow.update_layout(font=dict(size=14), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                          yaxis=dict(gridcolor="#E0E0E0"))
+    fig_dow.add_annotation(
+        text="Sales peak Wednesday to Friday",
+        xref="paper", yref="paper",
+        x=0.5, y=1.05,
+        showarrow=False,
+        font=dict(size=13, color="#444444"),
+        align="center"
+    )
     st.plotly_chart(fig_dow, use_container_width=True)
 
 with tab3:
+    st.subheader("Customer Analysis")
+    st.caption("Understand who your customers are, where they are based, how long they have been shopping with you, and how they respond to promotions.")
+
     col1, col2 = st.columns(2)
 
     with col1:
@@ -178,21 +204,22 @@ with tab3:
                       title="Average Online vs Offline Spend by Gender",
                       labels={"Avg Spend": "Average Spend ($)"},
                       color_discrete_sequence=[GOOGLE_BLUE, GOOGLE_RED])
-        fig4.update_layout(font=dict(size=14), plot_bgcolor="white",
-                           yaxis=dict(gridcolor="#f0f0f0"))
+        fig4.update_layout(font=dict(size=14), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                           yaxis=dict(gridcolor="#E0E0E0"))
         st.plotly_chart(fig4, use_container_width=True)
 
     with col2:
-        spend_location = filtered_df.groupby("Location")["TotalPrice"].sum().reset_index()
-        spend_location = spend_location.sort_values("TotalPrice", ascending=True)
+        avg_spend_location = filtered_df.groupby("Location")["TotalPrice"].mean().reset_index()
+        avg_spend_location.columns = ["Location", "Avg Revenue per Transaction"]
+        avg_spend_location = avg_spend_location.sort_values("Avg Revenue per Transaction", ascending=True)
 
-        fig5 = px.bar(spend_location, x="TotalPrice", y="Location",
+        fig5 = px.bar(avg_spend_location, x="Avg Revenue per Transaction", y="Location",
                       orientation="h",
-                      title="Total Revenue by Location",
-                      labels={"TotalPrice": "Revenue ($)", "Location": ""},
+                      title="Average Spend per Transaction by Location",
+                      labels={"Avg Revenue per Transaction": "Avg Spend ($)", "Location": ""},
                       color_discrete_sequence=[GOOGLE_GREEN])
-        fig5.update_layout(font=dict(size=14), plot_bgcolor="white",
-                           xaxis=dict(gridcolor="#f0f0f0"))
+        fig5.update_layout(font=dict(size=14), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                           xaxis=dict(gridcolor="#E0E0E0"))
         st.plotly_chart(fig5, use_container_width=True)
 
     st.markdown("---")
@@ -207,9 +234,8 @@ with tab3:
                       title="Number of Customers by Tenure Segment",
                       labels={"Customers": "Number of Customers", "Tenure": ""},
                       color_discrete_sequence=[GOOGLE_BLUE])
-        fig6.update_layout(font=dict(size=14), plot_bgcolor="white",
-                           yaxis=dict(gridcolor="#f0f0f0"), #xaxis_tickangle=0
-                           )
+        fig6.update_layout(font=dict(size=14), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                           yaxis=dict(gridcolor="#E0E0E0"))
         st.plotly_chart(fig6, use_container_width=True)
 
     with col4:
@@ -220,15 +246,22 @@ with tab3:
                       title="Coupon Usage Breakdown",
                       hole=0.4,
                       color_discrete_sequence=GOOGLE_COLORS)
-        fig7.update_layout(font=dict(size=14))
+        fig7.update_layout(font=dict(size=14), paper_bgcolor=PLOT_BG)
         fig7.update_traces(textfont_size=14)
         st.plotly_chart(fig7, use_container_width=True)
 
+    clicked_pct = round(coupon_counts[coupon_counts["CouponStatus"] == "Clicked"]["Count"].values[0] / coupon_counts["Count"].sum() * 100, 1)
+    st.info(f"**Coupon Insight:** {clicked_pct}% of customers clicked a coupon but did not use it, suggesting the current coupon strategy may need refinement to convert interest into redemption.")
+
 with tab4:
+    st.subheader("Basket Analysis")
+    st.caption("Discover which products are frequently bought together and which combinations are the strongest predictors of co-purchase behaviour.")
+
     col1, col2 = st.columns(2)
 
     with col1:
         st.markdown("#### Top Item Pairs by Support")
+        st.caption("Support shows how often two items appear together across all transactions.")
         pair_data = {
             "Item Pair": [
                 "Nest Outdoor Camera, Nest Indoor Camera",
@@ -251,13 +284,14 @@ with tab4:
                       title="Top 10 Item Pairs by Support",
                       labels={"Support (%)": "Support (%)", "Item Pair": ""},
                       color_discrete_sequence=[GOOGLE_BLUE])
-        fig8.update_layout(font=dict(size=13), plot_bgcolor="white",
-                           xaxis=dict(gridcolor="#f0f0f0"))
+        fig8.update_layout(font=dict(size=13), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                           xaxis=dict(gridcolor="#E0E0E0"))
         fig8.update_yaxes(autorange="reversed")
         st.plotly_chart(fig8, use_container_width=True)
 
     with col2:
         st.markdown("#### Top Association Rules by Lift")
+        st.caption("Lift measures how much more likely two items are bought together compared to by chance. A lift of 60 means customers are 60 times more likely to buy both items together.")
         rules_data = {
             "Rule": [
                 "Google Tee Blue → Google Tee Green",
@@ -280,8 +314,8 @@ with tab4:
                       title="Top 10 Association Rules by Lift",
                       labels={"Lift": "Lift Score", "Rule": ""},
                       color_discrete_sequence=[GOOGLE_RED])
-        fig9.update_layout(font=dict(size=13), plot_bgcolor="white",
-                           xaxis=dict(gridcolor="#f0f0f0"))
+        fig9.update_layout(font=dict(size=13), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                           xaxis=dict(gridcolor="#E0E0E0"))
         fig9.update_yaxes(autorange="reversed")
         st.plotly_chart(fig9, use_container_width=True)
 
@@ -297,11 +331,14 @@ with tab4:
                          labels={"Basket Size": "Number of Items", "count": "Number of Transactions"},
                          nbins=10,
                          color_discrete_sequence=[GOOGLE_GREEN])
-    fig10.update_layout(font=dict(size=14), plot_bgcolor="white",
-                        yaxis=dict(gridcolor="#f0f0f0"))
+    fig10.update_layout(font=dict(size=14), plot_bgcolor=PLOT_BG, paper_bgcolor=PLOT_BG,
+                        yaxis=dict(gridcolor="#E0E0E0"))
     st.plotly_chart(fig10, use_container_width=True)
 
 with tab5:
+    st.subheader("ML Insights")
+    st.caption("A summary of the machine learning models applied to this dataset, including recommendation systems and market basket analysis algorithms.")
+
     col1, col2 = st.columns(2)
 
     with col1:
@@ -322,7 +359,7 @@ with tab5:
                 f"{filtered_df['Description'].nunique():,}",
                 f"{filtered_df.groupby('TransactionID')['Description'].count().mean():.2f}",
                 "97.76%",
-                "Jan 2019 — Dec 2019"
+                "Jan 2019 - Dec 2019"
             ]
         }
         ml_df = pd.DataFrame(ml_stats)
@@ -334,6 +371,12 @@ with tab5:
         - Rich product descriptions enable content-based filtering
         - Transaction history supports market basket analysis
         - Customer demographics enable segmentation
+        """)
+
+        st.markdown("""
+        The high matrix sparsity of 97.76% is a common challenge in retail recommendation systems.
+        It was addressed by applying a minimum similarity threshold and lowering the support threshold
+        for market basket analysis to ensure meaningful patterns could still be identified.
         """)
 
     with col2:
@@ -348,6 +391,12 @@ with tab5:
         rec_df = pd.DataFrame(rec_data)
         st.table(rec_df)
 
+        st.markdown("""
+        A hybrid approach combining all three methods would be optimal in production.
+        Content-based filtering handles new customers, while collaborative filtering
+        improves as purchase history grows.
+        """)
+
         st.markdown("#### Algorithm Comparison")
         algo_data = {
             "Metric": ["Rules Generated", "Frequent Itemsets", "Avg Runtime"],
@@ -356,5 +405,11 @@ with tab5:
         }
         algo_df = pd.DataFrame(algo_data)
         st.table(algo_df)
+
+        st.markdown("""
+        Both algorithms produced identical results. Apriori was faster on this dataset
+        due to high sparsity, which limits the effectiveness of FP Growth's tree compression.
+        This highlights the importance of matching algorithm choice to dataset characteristics.
+        """)
 
 st.markdown("---")
