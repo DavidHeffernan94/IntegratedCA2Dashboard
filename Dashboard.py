@@ -262,6 +262,7 @@ with tab4:
     with col1:
         st.markdown("#### Top Item Pairs by Support")
         st.caption("Support shows how often two items appear together across all transactions.")
+        st.markdown("<br>", unsafe_allow_html=True)
         pair_data = {
             "Item Pair": [
                 "Nest Outdoor Camera, Nest Indoor Camera",
